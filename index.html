@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Matcher Ultimate Balance V3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .active-tab { color: #4f46e5; border-bottom: 2px solid #4f46e5; font-weight: bold; }
+        .hidden { display: none !important; }
+        body { -webkit-overflow-scrolling: touch; }
+        .modal-bg { background-color: rgba(0,0,0,0.7); backdrop-filter: blur(2px); }
+        .text-male { color: #1d4ed8; }
+        .text-female { color: #db2777; }
+
+        @media print {
+            @page { size: A4; margin: 10mm; }
+            body { background: white; color: black; font-family: serif; }
+            .no-print, nav, header, #tab-players, #tab-stats, #control-area { display: none !important; }
+            main { max-width: 100% !important; padding: 0 !important; }
+            #tab-matches { display: block !important; }
+            #match-display-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .match-card { break-inside: avoid; border: 2px solid #000; box-shadow: none !important; background: white !important; color: black !important; }
+            .court-label { background: #000 !important; color: #fff !important; }
+            .team-box { background: #fff !important; border: 1px solid #ccc !important; }
+            .vs-label { color: #000 !important; }
+            .text-male { color: #1d4ed8 !important; -webkit-print-color-adjust: exact; }
+            .text-female { color: #db2777 !important; -webkit-print-color-adjust: exact; }
+            #print-header { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; }
+        }
+        #print-header { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 pb-24 font-sans">
+
+    <header class="bg-indigo-600 text-white p-4 shadow-lg sticky top-0 z-40 no-print">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <h1 class="text-lg font-bold">🏸 Matcher Pro</h1>
+            <div id="header-count" class="text-[10px] bg-white/20 px-2 py-1 rounded">参加: 0名</div>
+        </div>
+    </header>
+
+    <div id="print-header">
+        <h1 class="text-2xl font-bold">バドミントン対戦表</h1>
+        <p id="print-round-info" class="text-lg">第 X 試合</p>
+    </div>
+
+    <main class="max-w-md mx-auto p-4">
+        
+        <section id="tab-matches" class="space-y-4">
+            <div id="control-area" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 no-print">
+                <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">モード選択</p>
+                <div class="space-y-2">
+                    <button onclick="generateMatches('level')" class="w-full flex items-center justify-between px-4 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold border border-indigo-200 transition-all text-sm group shadow-sm active:scale-95">
+                        <span class="flex items-center gap-2 text-lg">💪 <span class="text-sm">レベル別</span></span>
+                        <span class="text-[10px] font-normal text-gray-500">同じランク同士で対戦</span>
+                    </button>
+                    
+                    <button onclick="generateMatches('balanced')" class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg font-bold border border-green-200 transition-all text-sm group shadow-sm active:scale-95">
+                        <span class="flex items-center gap-2 text-lg">⚖️ <span class="text-sm">バランス</span></span>
+                        <span class="text-[10px] font-normal text-gray-500">戦力が拮抗するように調整</span>
+                    </button>
+                    
+                    <button onclick="generateMatches('random')" class="w-full flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg font-bold border border-orange-200 transition-all text-sm group shadow-sm active:scale-95">
+                        <span class="flex items-center gap-2 text-lg">🎲 <span class="text-sm">ランダム</span></span>
+                        <span class="text-[10px] font-normal text-gray-500">レベル無視でシャッフル</span>
+                    </button>
+                </div>
+            </div>
+
+            <button id="btn-print" onclick="openPrintWindow()" class="no-print hidden w-full py-3 bg-gray-700 text-white rounded-lg font-bold text-sm shadow-md flex items-center justify-center gap-2 active:bg-gray-800 transition-all">
+                🖨️ 別窓で印刷画面を開く (A4/PDF)
+            </button>
+            
+            <div id="match-display-area" class="space-y-4"></div>
+
+            <div id="rest-section" class="hidden mt-8 no-print">
+                <h3 class="text-[10px] font-bold text-gray-400 mb-2 uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 bg-gray-300 rounded-full"></span>今回のお休み
+                </h3>
+                <div id="rest-list-area" class="flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <section id="tab-players" class="hidden space-y-4 no-print">
+            <div class="bg-white p-4 rounded-xl shadow-sm border">
+                <input id="p-name" class="w-full border rounded px-3 py-2 mb-2 text-sm" placeholder="名前">
+                <div class="flex gap-2">
+                    <select id="p-gender" class="border rounded px-2 text-sm bg-white"><option value="M">男性</option><option value="F">女性</option></select>
+                    <select id="p-rank" class="flex-1 border rounded px-2 text-sm bg-white"><option value="1">ランク1:強</option><option value="2" selected>ランク2:中</option><option value="3">ランク3:弱</option></select>
+                    <button onclick="addPlayer()" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm font-bold">追加</button>
+                </div>
+            </div>
+            
+            <div id="player-list-area" class="space-y-2"></div>
+            
+            <div id="rank-summary-area" class="bg-gray-100 p-2 rounded-lg text-center shadow-inner text-xs font-bold flex justify-around"></div>
+
+            <div class="pt-6 border-t space-y-4 text-center">
+                <textarea id="csv-area" class="w-full h-24 text-[10px] p-2 border rounded bg-white mb-2 font-mono" placeholder="名簿データ"></textarea>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportAndCopy()" class="bg-white border border-indigo-300 text-indigo-700 py-2 rounded text-[10px] font-bold shadow-sm">名簿コピー</button>
+                    <button onclick="openModal('復元', '上書きしますか？', 'import')" class="bg-indigo-600 text-white py-2 rounded text-[10px] font-bold shadow-sm">名簿復元</button>
+                </div>
+                <button onclick="openModal('初期化', '全消去しますか？', 'reset')" class="w-full text-[10px] text-red-400 py-2 mt-4">アプリ初期化</button>
+            </div>
+        </section>
+
+        <section id="tab-stats" class="hidden no-print">
+            <div id="stat-list" class="bg-white p-4 rounded-xl shadow-sm border space-y-2 text-sm"></div>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 text-[10px] text-gray-400 z-40 shadow-2xl no-print">
+        <button onclick="showTab('matches')" id="btn-matches" class="active-tab flex flex-col items-center">試合</button>
+        <button onclick="showTab('players')" id="btn-players" class="flex flex-col items-center">選手</button>
+        <button onclick="showTab('stats')" id="btn-stats" class="flex flex-col items-center">成績</button>
+    </nav>
+
+    <div id="custom-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-bg no-print">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 id="modal-title" class="font-bold text-lg mb-2">確認</h3>
+            <p id="modal-message" class="text-sm text-gray-500 mb-6"></p>
+            <div class="flex gap-2 justify-end">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-gray-100 rounded-lg text-sm font-bold">戻る</button>
+                <button id="modal-confirm-btn" class="px-5 py-2.5 bg-red-500 text-white rounded-lg text-sm font-bold">実行</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'badminton_final_balance_v99';
+        let players = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let matches = [];
+        let roundCount = parseInt(localStorage.getItem(STORAGE_KEY+'_round')) || 1;
+        let currentTargetId = null;
+        let currentMode = "";
+        let currentModeName = "";
+        let currentResting = [];
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+            localStorage.setItem(STORAGE_KEY+'_round', roundCount);
+            renderAll();
+        }
+
+        function showTab(tabId) {
+            ['matches', 'players', 'stats'].forEach(id => {
+                document.getElementById('tab-'+id).classList.add('hidden');
+                document.getElementById('btn-'+id).classList.remove('active-tab');
+            });
+            document.getElementById('tab-'+tabId).classList.remove('hidden');
+            document.getElementById('btn-'+tabId).classList.add('active-tab');
+            if(tabId === 'stats') renderStats();
+        }
+
+        function openModal(title, msg, mode, id = null) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = msg;
+            currentMode = mode;
+            currentTargetId = id;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+        document.getElementById('modal-confirm-btn').onclick = function() {
+            if (currentMode === "delete") players = players.filter(p => p.id !== currentTargetId);
+            else if (currentMode === "import") executeImport();
+            else if (currentMode === "reset") { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(STORAGE_KEY+'_round'); location.reload(); return; }
+            save(); closeModal();
+        };
+
+        function addPlayer() {
+            const name = document.getElementById('p-name').value.trim();
+            if(!name) return;
+            players.push({ id: Date.now(), name, gender: document.getElementById('p-gender').value, rank: parseInt(document.getElementById('p-rank').value), active: true, wins: 0, partners: [], gamesPlayed: 0, restStreak: 0 });
+            document.getElementById('p-name').value = '';
+            save();
+        }
+        function toggleActive(id) { players = players.map(p => p.id === id ? {...p, active: !p.active} : p); save(); }
+
+        function renderAll() {
+            const activeP = players.filter(p=>p.active);
+            document.getElementById('header-count').innerText = "参加: " + activeP.length + "名";
+            
+            document.getElementById('player-list-area').innerHTML = players.map(p => `
+                <div class="flex items-center justify-between p-3 rounded-lg border bg-white mb-2 shadow-sm ${p.gender==='M'?'border-blue-100':'border-pink-100'} ${p.active?'':'opacity-40'}">
+                    <div class="flex items-center gap-3 flex-1" onclick="toggleActive(${p.id})">
+                        <div class="w-8 h-8 rounded-full ${p.gender==='M'?'bg-blue-400':'bg-pink-400'} flex items-center justify-center text-white text-[10px] font-bold">${p.name[0]}</div>
+                        <span class="text-sm font-bold ${p.gender==='M'?'text-male':'text-female'}">${p.name} <span class="text-[10px] text-gray-400">R${p.rank}</span></span>
+                    </div>
+                    <button onclick="openModal('削除', '${p.name}を消しますか？', 'delete', ${p.id})" class="text-gray-300 px-3 text-lg">✕</button>
+                </div>`).join('');
+
+            const r1 = activeP.filter(p => p.rank === 1).length;
+            const r2 = activeP.filter(p => p.rank === 2).length;
+            const r3 = activeP.filter(p => p.rank === 3).length;
+            document.getElementById('rank-summary-area').innerHTML = `
+                <span class="text-indigo-600">R1(強): ${r1}名</span>
+                <span class="text-green-600">R2(中): ${r2}名</span>
+                <span class="text-orange-600">R3(弱): ${r3}名</span>
+            `;
+        }
+
+        // --- ★ マッチングロジック (大幅改良) ---
+        function generateMatches(mode) {
+            const active = players.filter(p => p.active);
+            if(active.length < 4) return alert('4人以上必要です');
+
+            // 1. 出場者選抜 (試合数・休み数ベース)
+            const sorted = [...active].sort((a,b) => (a.gamesPlayed - b.gamesPlayed) || (b.restStreak - a.restStreak) || (Math.random() - 0.5));
+            const numCourts = Math.floor(active.length / 4);
+            let inGame = sorted.slice(0, numCourts * 4);
+            const resting = sorted.slice(numCourts * 4);
+            currentResting = resting;
+
+            // 2. コートへの割り振り (ここが重要)
+            if (mode === 'level') {
+                // レベル別: ランク順に整列して固める
+                inGame.sort((a,b) => a.rank - b.rank);
+            } else {
+                // バランス & ランダム: 
+                // ランク順にはせず、シャッフルして「色々なランクの人」をコートに混ぜる
+                // これにより、[1,1,2,2] や [1,3,2,2] など多様な組み合わせが生まれる
+                inGame.sort(() => Math.random() - 0.5);
+            }
+            
+            matches = [];
+            let pool = [...inGame];
+
+            // 3. ペアリング作成
+            for(let i=0; i<numCourts; i++) {
+                // 上でシャッフルしているので、前から4人取るだけで「混ざった4人」になる
+                let courtPlayers = pool.splice(0, 4);
+
+                if (mode === 'random') {
+                    // 完全ランダム
+                    courtPlayers.sort(() => Math.random() - 0.5);
+                    matches.push({ court: i+1, pairA: [courtPlayers[0], courtPlayers[1]], pairB: [courtPlayers[2], courtPlayers[3]], winner: null });
+                } else {
+                    // レベル別 or バランス
+                    // 混ざった4人の中で「最適」な組み合わせを探す
+                    // [1,1,2,2]なら1&2 vs 1&2 を作り出す
+                    const best = getBestSplit(courtPlayers, mode);
+                    matches.push({ court: i+1, pairA: best.pairA, pairB: best.pairB, winner: null });
+                }
+            }
+
+            // データ更新
+            players = players.map(p => {
+                const playing = inGame.find(x => x.id === p.id);
+                if(playing) {
+                    const m = matches.find(m => m.pairA.find(x=>x.id===p.id) || m.pairB.find(x=>x.id===p.id));
+                    const pair = m.pairA.find(x=>x.id===p.id) ? m.pairA : m.pairB;
+                    const partner = pair[0].id === p.id ? pair[1].id : pair[0].id;
+                    return {...p, gamesPlayed: p.gamesPlayed + 1, restStreak: 0, partners: [...p.partners, partner]};
+                }
+                return {...p, restStreak: p.active ? p.restStreak + 1 : 0};
+            });
+
+            currentModeName = mode==='level' ? 'レベル別' : (mode==='balanced'?'バランス':'ランダム');
+            roundCount++;
+            save();
+            renderMatches(resting);
+        }
+
+        // ★ 最適ペア計算 (バランス調整の肝) ★
+        function getBestSplit(p, mode) {
+            const combs = [{ a: [p[0], p[1]], b: [p[2], p[3]] }, { a: [p[0], p[2]], b: [p[1], p[3]] }, { a: [p[0], p[3]], b: [p[1], p[2]] }];
+            let best = combs[0]; let minS = Infinity;
+            
+            combs.forEach(c => {
+                let s = 0;
+                const rA1 = c.a[0].rank; const rA2 = c.a[1].rank; const rB1 = c.b[0].rank; const rB2 = c.b[1].rank;
+                
+                if (mode === 'level') { 
+                    // ペア内ランク差を小さく (1&1 vs 2&2)
+                    s += Math.abs(rA1 - rA2) * 500 + Math.abs(rB1 - rB2) * 500; 
+                } else if (mode === 'balanced') { 
+                    // チーム合計ランク差を小さく (1&2=3 vs 1&2=3 -> 差0)
+                    // これにより 1&2 vs 1&2 や 1&3 vs 2&2 が選ばれる
+                    s += Math.abs((rA1+rA2) - (rB1+rB2)) * 5000; 
+                }
+                
+                // 過去ペア回避 (バランスモードでもしっかり効かせる)
+                if (c.a[0].partners.includes(c.a[1].id)) s += 20000;
+                if (c.b[0].partners.includes(c.b[1].id)) s += 20000;
+                
+                s += Math.random(); // 微小ランダムで揺らぎを持たせる
+                if (s < minS) { minS = s; best = c; }
+            });
+            return { pairA: best.a, pairB: best.b };
+        }
+
+        function recordWin(mIdx, side) {
+            if(matches[mIdx].winner) return;
+            matches[mIdx].winner = side;
+            (side === 'A' ? matches[mIdx].pairA : matches[mIdx].pairB).forEach(w => { 
+                const p = players.find(x => x.id === w.id); if(p) p.wins++; 
+            });
+            save(); renderMatches();
+        }
+
+        function renderMatches(resting) {
+            const area = document.getElementById('match-display-area');
+            const btn = document.getElementById('btn-print');
+            if(matches.length > 0) {
+                btn.classList.remove('hidden');
+                area.innerHTML = matches.map((m, idx) => `
+                <div class="match-card bg-white p-4 rounded-xl border shadow-md relative overflow-hidden">
+                    <div class="court-label absolute top-0 left-0 bg-gray-800 text-white text-[9px] px-2 py-0.5 rounded-br-lg">第${m.court}コート</div>
+                    <div class="flex justify-between items-center gap-2 mt-2 text-center">
+                        <div class="team-box flex-1 p-2 ${m.winner==='A'?'bg-yellow-50 ring-2 ring-yellow-400':'bg-gray-50'} rounded text-xs font-bold border">
+                            <span class="${m.pairA[0].gender==='M'?'text-male':'text-female'}">${m.pairA[0].name}</span><br>
+                            <span class="${m.pairA[1].gender==='M'?'text-male':'text-female'}">${m.pairA[1].name}</span>
+                            ${!m.winner?`<button onclick="recordWin(${idx},'A')" class="mt-2 w-full bg-white border py-1 rounded text-[9px]">WIN</button>`:''}
+                        </div>
+                        <div class="vs-label text-[10px] text-gray-400 font-bold italic">VS</div>
+                        <div class="team-box flex-1 p-2 ${m.winner==='B'?'bg-yellow-50 ring-2 ring-yellow-400':'bg-gray-50'} rounded text-xs font-bold border">
+                            <span class="${m.pairB[0].gender==='M'?'text-male':'text-female'}">${m.pairB[0].name}</span><br>
+                            <span class="${m.pairB[1].gender==='M'?'text-male':'text-female'}">${m.pairB[1].name}</span>
+                            ${!m.winner?`<button onclick="recordWin(${idx},'B')" class="mt-2 w-full bg-white border py-1 rounded text-[9px]">WIN</button>`:''}
+                        </div>
+                    </div>
+                </div>`).join('');
+            } else btn.classList.add('hidden');
+
+            const restSec = document.getElementById('rest-section');
+            if(resting && resting.length > 0) {
+                restSec.classList.remove('hidden');
+                document.getElementById('rest-list-area').innerHTML = resting.map(p => 
+                    `<span class="text-[10px] bg-gray-200 px-2 py-1 rounded border ${p.gender==='M'?'text-male':'text-female'} font-bold">${p.name}</span>`
+                ).join('');
+            } else restSec.classList.add('hidden');
+        }
+
+        function openPrintWindow() {
+            const playingIds = new Set();
+            matches.forEach(m => {
+                m.pairA.forEach(p => playingIds.add(p.id));
+                m.pairB.forEach(p => playingIds.add(p.id));
+            });
+            const restingPlayers = players.filter(p => p.active && !playingIds.has(p.id));
+
+            let matchHtml = matches.map(m => `
+                <div class="match-box">
+                    <div class="court-title">第${m.court}コート</div>
+                    <div class="teams">
+                        <div class="team">
+                            <div class="${m.pairA[0].gender==='M'?'male':'female'}">${m.pairA[0].name}</div>
+                            <div class="${m.pairA[1].gender==='M'?'male':'female'}">${m.pairA[1].name}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <div class="${m.pairB[0].gender==='M'?'male':'female'}">${m.pairB[0].name}</div>
+                            <div class="${m.pairB[1].gender==='M'?'male':'female'}">${m.pairB[1].name}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            let restHtml = "";
+            if(restingPlayers.length > 0) {
+                const names = restingPlayers.map(p => `<span class="${p.gender==='M'?'male':'female'}">${p.name}</span>`).join(' / ');
+                restHtml = `
+                    <div class="rest-box">
+                        <div class="rest-title">今回のお休み</div>
+                        <div class="rest-names">${names}</div>
+                    </div>
+                `;
+            }
+
+            const win = window.open('', '_blank');
+            if(!win) return alert("ポップアップがブロックされました。");
+
+            win.document.write(`
+                <html>
+                <head>
+                    <title>対戦表印刷</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; }
+                        h1 { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .match-box { border: 1px solid #000; padding: 10px; break-inside: avoid; text-align: center; }
+                        .court-title { background: #333; color: #fff; display: inline-block; padding: 3px 10px; font-size: 12px; margin-bottom: 10px; border-radius: 4px; }
+                        .teams { display: flex; justify-content: center; align-items: center; gap: 10px; }
+                        .team { border: 1px solid #ccc; padding: 10px; width: 40%; font-weight: bold; font-size: 14px; }
+                        .vs { font-style: italic; color: #666; font-weight: bold; }
+                        .male { color: #1d4ed8; }
+                        .female { color: #db2777; }
+                        .rest-box { margin-top: 30px; border: 2px dashed #999; padding: 15px; text-align: center; break-inside: avoid; }
+                        .rest-title { font-weight: bold; margin-bottom: 10px; background: #eee; display: inline-block; padding: 2px 10px; rounded: 4px; }
+                        .rest-names { font-weight: bold; font-size: 14px; }
+                        @media print { body { -webkit-print-color-adjust: exact; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>第${roundCount-1}試合 (${currentModeName})</h1>
+                    <div class="grid">${matchHtml}</div>
+                    ${restHtml}
+                    <script>window.onload = function() { window.print(); }<\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function exportAndCopy() {
+            let csv = "名前,ランク,性別,勝数\n";
+            players.forEach(p => { csv += p.name + "," + p.rank + "," + p.gender + "," + p.wins + "\n"; });
+            const area = document.getElementById('csv-area');
+            area.value = csv; area.select(); document.execCommand('copy');
+            alert("コピーしました");
+        }
+        function executeImport() {
+            const lines = document.getElementById('csv-area').value.trim().split('\n');
+            const newList = [];
+            lines.forEach((line, i) => {
+                if (i === 0 && line.includes("名前")) return;
+                const c = line.split(',');
+                if (c.length >= 3) newList.push({ id: Date.now()+Math.random(), name: c[0].trim(), rank: parseInt(c[1])||2, gender: c[2].trim().toUpperCase()==='F'?'F':'M', wins: parseInt(c[3])||0, active: true, partners: [], gamesPlayed: 0, restStreak: 0 });
+            });
+            if(newList.length > 0) { players = newList; alert("復元しました"); }
+        }
+        function renderStats() {
+            const sorted = [...players].sort((a,b) => b.wins - a.wins);
+            document.getElementById('stat-list').innerHTML = sorted.map((p,i) => `<div class="flex justify-between border-b py-2"><span>${i+1}. <span class="${p.gender==='M'?'text-male':'text-female'} font-bold">${p.name}</span></span><span class="font-bold text-indigo-600">${p.wins}勝</span></div>`).join('') || 'なし';
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
