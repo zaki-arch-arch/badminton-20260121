@@ -156,61 +156,13 @@
     <script>
         const STORAGE_KEY = 'badminton_final_balance_v99';
         
-        // ★ ユーザー提供の初期データ（デフォルト名簿）
-        const defaultCSV = `名前,ランク,性別,勝数
-ハナ88,1,M,0
-チャロ,3,F,0
-ゆっちゃん,1,F,0
-りり,2,F,0
-地底人,2,M,0
-らむね,1,F,0
-きな,1,M,0
-ちび丸,2,M,0
-ヒロショウ,3,M,0
-マリア,1,F,0
-AYU,3,F,0
-まー,3,F,0
-はるかどん,2,F,0
-なおと,1,M,0
-san,2,M,0
-いしし,2,M,0
-まさと,2,M,0
-あき,2,F,0
-ゆー,3,F,0
-のっち,3,F,0
-けろりん,2,M,0
-ありも,3,F,0
-タカヨシ,3,M,0
-コー,2,M,0
-mono,1,M,0
-ひゃっか,3,F,0
-メガネカピバラ,1,M,0
-あやなぎ,3,F,0
-しん社長,2,M,0
-【なおと】,1,M,0`;
-
         let players = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-        // ★ データが空（初回アクセス or 初期化直後）なら、デフォルトCSVを読み込んで初期化する
-        if (!players || players.length === 0) {
+        // ★ 初期化ロジックの大幅アップデート
+        // データが存在しない（初回アクセス）時だけ、空の配列を用意する。
+        // 人数が0人でもデータが存在するなら、勝手に名簿を復活させない（ゾンビ対策）！
+        if (!players) {
             players = [];
-            const lines = defaultCSV.trim().split('\n');
-            lines.forEach((line, i) => {
-                if (i === 0 && line.includes("名前")) return;
-                const c = line.split(',');
-                if (c.length >= 3) players.push({ 
-                    id: Date.now() + i, // idがかぶらんようにインデックスを足す
-                    name: c[0].trim(), 
-                    rank: parseInt(c[1])||2, 
-                    gender: c[2].trim().toUpperCase()==='F'?'F':'M', 
-                    wins: parseInt(c[3])||0, 
-                    active: true, 
-                    partners: [], 
-                    gamesPlayed: 0, 
-                    restStreak: 0, 
-                    restMode: 0 
-                });
-            });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
         }
         
@@ -227,7 +179,7 @@ mono,1,M,0
         let currentMode = "";
         let currentModeName = "";
         let currentResting = [];
-        let playerSortMode = 'default'; // ★ ソート状態を保持する変数
+        let playerSortMode = 'default';
 
         function save() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
@@ -254,7 +206,6 @@ mono,1,M,0
         }
         function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
         
-        // ★ここが完全改修された初期化ロジックや！
         document.getElementById('modal-confirm-btn').onclick = function() {
             if (currentMode === "delete") {
                 players = players.filter(p => p.id !== currentTargetId);
@@ -265,25 +216,8 @@ mono,1,M,0
                 localStorage.removeItem(STORAGE_KEY);
                 localStorage.removeItem(STORAGE_KEY+'_round');
                 
-                // 2. プレイヤーをデフォルトCSVから再生成
+                // 2. プレイヤーを完全に空（0人）にする
                 players = [];
-                const lines = defaultCSV.trim().split('\n');
-                lines.forEach((line, i) => {
-                    if (i === 0 && line.includes("名前")) return;
-                    const c = line.split(',');
-                    if (c.length >= 3) players.push({ 
-                        id: Date.now() + i, 
-                        name: c[0].trim(), 
-                        rank: parseInt(c[1])||2, 
-                        gender: c[2].trim().toUpperCase()==='F'?'F':'M', 
-                        wins: parseInt(c[3])||0, 
-                        active: true, 
-                        partners: [], 
-                        gamesPlayed: 0, 
-                        restStreak: 0, 
-                        restMode: 0 
-                    });
-                });
                 
                 // 3. 試合状態をリセット
                 matches = [];
@@ -292,7 +226,7 @@ mono,1,M,0
                 // 4. 保存＆画面再描画＆モーダル閉じる
                 save(); 
                 closeModal();
-                alert("アプリを完全初期化しましたで！これでオフラインでもバッチリや！");
+                alert("アプリを完全初期化しましたで！名簿もスッカラカンや！");
                 return;
             }
             save(); closeModal();
