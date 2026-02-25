@@ -107,7 +107,6 @@
                 </div>
             </div>
             
-            <!-- ★ 並び替えコントロールエリア -->
             <div class="flex justify-between items-center px-1 text-[10px]">
                 <span class="font-bold text-gray-400 uppercase">並び替え</span>
                 <div class="flex gap-1">
@@ -254,10 +253,48 @@ mono,1,M,0
             document.getElementById('custom-modal').classList.remove('hidden');
         }
         function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+        
+        // ★ここが完全改修された初期化ロジックや！
         document.getElementById('modal-confirm-btn').onclick = function() {
-            if (currentMode === "delete") players = players.filter(p => p.id !== currentTargetId);
-            else if (currentMode === "import") executeImport();
-            else if (currentMode === "reset") { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(STORAGE_KEY+'_round'); location.reload(); return; }
+            if (currentMode === "delete") {
+                players = players.filter(p => p.id !== currentTargetId);
+            } else if (currentMode === "import") {
+                executeImport();
+            } else if (currentMode === "reset") {
+                // 1. ローカルストレージを完全クリア
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(STORAGE_KEY+'_round');
+                
+                // 2. プレイヤーをデフォルトCSVから再生成
+                players = [];
+                const lines = defaultCSV.trim().split('\n');
+                lines.forEach((line, i) => {
+                    if (i === 0 && line.includes("名前")) return;
+                    const c = line.split(',');
+                    if (c.length >= 3) players.push({ 
+                        id: Date.now() + i, 
+                        name: c[0].trim(), 
+                        rank: parseInt(c[1])||2, 
+                        gender: c[2].trim().toUpperCase()==='F'?'F':'M', 
+                        wins: parseInt(c[3])||0, 
+                        active: true, 
+                        partners: [], 
+                        gamesPlayed: 0, 
+                        restStreak: 0, 
+                        restMode: 0 
+                    });
+                });
+                
+                // 3. 試合状態をリセット
+                matches = [];
+                roundCount = 1;
+                
+                // 4. 保存＆画面再描画＆モーダル閉じる
+                save(); 
+                closeModal();
+                alert("アプリを完全初期化しましたで！これでオフラインでもバッチリや！");
+                return;
+            }
             save(); closeModal();
         };
 
@@ -281,13 +318,11 @@ mono,1,M,0
             save(); 
         }
 
-        // ★ 新機能：ランクを直接変更する関数
         function updateRank(id, newRank) {
             players = players.map(p => p.id === id ? {...p, rank: parseInt(newRank)} : p);
             save();
         }
 
-        // ★ ソート状態を変更して再描画する関数
         function setPlayerSort(mode) {
             playerSortMode = mode;
             renderAll();
@@ -297,7 +332,6 @@ mono,1,M,0
             const activeP = players.filter(p=>p.active);
             document.getElementById('header-count').innerText = "参加: " + activeP.length + "名";
             
-            // ★ テキストエリアにも現在のデータを反映しとく
             const csvArea = document.getElementById('csv-area');
             if (csvArea) {
                 let currentCsv = "名前,ランク,性別,勝数\n";
@@ -305,7 +339,6 @@ mono,1,M,0
                 csvArea.value = currentCsv;
             }
 
-            // ソートボタンのUI状態（色）を更新
             ['default', 'gender', 'rank', 'rest'].forEach(mode => {
                 const btn = document.getElementById('sort-' + mode);
                 if (btn) {
@@ -317,29 +350,21 @@ mono,1,M,0
                 }
             });
 
-            // ★ 表示用にプレイヤー配列をコピーしてソート
             let displayPlayers = [...players];
             displayPlayers.sort((a, b) => {
-                // 1. まず「今日来てない（非アクティブ）」人は問答無用で下に配置
                 if (a.active !== b.active) return a.active ? -1 : 1;
                 
-                // 2. アクティブ状態が同じなら、選ばれたモードでソート
                 if (playerSortMode === 'gender') {
-                    // 男女別 (男性Mが先) -> 同性ならランク順
                     return b.gender.localeCompare(a.gender) || a.rank - b.rank;
                 } else if (playerSortMode === 'rank') {
-                    // ランク順 (1 -> 2 -> 3) -> 同ランクなら男女別
                     return a.rank - b.rank || b.gender.localeCompare(a.gender);
                 } else if (playerSortMode === 'rest') {
-                    // 状態別 (参加中0 -> 1回休1 -> 休止中2) -> 同状態ならランク順
                     return a.restMode - b.restMode || a.rank - b.rank;
                 }
                 
-                // 3. デフォルトは追加した順番（id順）
                 return a.id - b.id;
             });
 
-            // ソート済みの配列を使って画面に描画
             document.getElementById('player-list-area').innerHTML = displayPlayers.map(p => {
                 let restBtnClass = 'bg-gray-50 border-gray-200 text-gray-400';
                 let restBtnText = '参加中';
