@@ -1,25 +1,44 @@
-const CACHE_NAME = 'badminton-cache-v1';
-// キャッシュしたいファイルのリスト（自分の環境に合わせてCSSやJSのファイル名を追加してや）
+// ★ ここを 'v2', 'v3' と変えることでアプリがアップデートされるんや！
+const CACHE_NAME = 'badminton-cache-v2';
+
+// キャッシュしたいファイルのリスト（君の環境に合わせてるで）
 const urlsToCache = [
   './',
   './index.html',
-  // './style.css',  // CSSファイルがあればコメントアウト外して追加
-  // './main.js',    // JSファイルがあればコメントアウト外して追加
   './icon_192.png',
-  './icon_512.png'
+  './icon_512.png',
+  './manifest.json'
 ];
 
-// インストール時にファイルをキャッシュにぶち込む
+// 【インストール処理】ファイルをキャッシュにぶち込む
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
+        console.log('新しいキャッシュを保存したで！');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// ネットワークリクエストを横取りしてキャッシュを返す
+// 【アクティベート処理】★ココが新機能！古いキャッシュをぶっ壊す！
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          // 現在のバージョン(CACHE_NAME)以外の古いキャッシュは全部削除や！
+          if (cacheName !== CACHE_NAME) {
+            console.log('古いキャッシュを削除したで:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// 【ネットワークリクエスト処理】横取りしてキャッシュを返す
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
