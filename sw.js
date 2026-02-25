@@ -5,8 +5,8 @@ const urlsToCache = [
   './index.html',
   // './style.css',  // CSSファイルがあればコメントアウト外して追加
   // './main.js',    // JSファイルがあればコメントアウト外して追加
-  './icon-192.png',
-  './icon-512.png'
+  './icon-192.jpg',
+  './icon-512.jpg'
 ];
 
 // インストール時にファイルをキャッシュにぶち込む
