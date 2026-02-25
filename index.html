@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badminton Matcher Ultimate Balance V5</title>
+    <title>Badminton Matcher Ultimate Balance V6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .active-tab { color: #4f46e5; border-bottom: 2px solid #4f46e5; font-weight: bold; }
@@ -94,6 +94,17 @@
                 </div>
             </div>
             
+            <!-- ★ 並び替えコントロールエリア -->
+            <div class="flex justify-between items-center px-1 text-[10px]">
+                <span class="font-bold text-gray-400 uppercase">並び替え</span>
+                <div class="flex gap-1">
+                    <button onclick="setPlayerSort('default')" id="sort-default" class="px-2 py-1 rounded border transition-colors bg-indigo-100 text-indigo-700 font-bold border-indigo-300">登録順</button>
+                    <button onclick="setPlayerSort('gender')" id="sort-gender" class="px-2 py-1 rounded border transition-colors bg-white text-gray-500 border-gray-200">男女別</button>
+                    <button onclick="setPlayerSort('rank')" id="sort-rank" class="px-2 py-1 rounded border transition-colors bg-white text-gray-500 border-gray-200">レベル順</button>
+                    <button onclick="setPlayerSort('rest')" id="sort-rest" class="px-2 py-1 rounded border transition-colors bg-white text-gray-500 border-gray-200">状態別</button>
+                </div>
+            </div>
+
             <div id="player-list-area" class="space-y-2"></div>
             
             <div id="rank-summary-area" class="bg-gray-100 p-2 rounded-lg text-center shadow-inner text-xs font-bold flex justify-around"></div>
@@ -132,7 +143,64 @@
 
     <script>
         const STORAGE_KEY = 'badminton_final_balance_v99';
-        let players = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        
+        // ★ ユーザー提供の初期データ（デフォルト名簿）
+        const defaultCSV = `名前,ランク,性別,勝数
+ハナ88,1,M,0
+チャロ,3,F,0
+ゆっちゃん,1,F,0
+りり,2,F,0
+地底人,2,M,0
+らむね,1,F,0
+きな,1,M,0
+ちび丸,2,M,0
+ヒロショウ,3,M,0
+マリア,1,F,0
+AYU,3,F,0
+まー,3,F,0
+はるかどん,2,F,0
+なおと,1,M,0
+san,2,M,0
+いしし,2,M,0
+まさと,2,M,0
+あき,2,F,0
+ゆー,3,F,0
+のっち,3,F,0
+けろりん,2,M,0
+ありも,3,F,0
+タカヨシ,3,M,0
+コー,2,M,0
+mono,1,M,0
+ひゃっか,3,F,0
+メガネカピバラ,1,M,0
+あやなぎ,3,F,0
+しん社長,2,M,0
+【なおと】,1,M,0`;
+
+        let players = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        // ★ データが空（初回アクセス or 初期化直後）なら、デフォルトCSVを読み込んで初期化する
+        if (!players || players.length === 0) {
+            players = [];
+            const lines = defaultCSV.trim().split('\n');
+            lines.forEach((line, i) => {
+                if (i === 0 && line.includes("名前")) return;
+                const c = line.split(',');
+                if (c.length >= 3) players.push({ 
+                    id: Date.now() + i, // idがかぶらんようにインデックスを足す
+                    name: c[0].trim(), 
+                    rank: parseInt(c[1])||2, 
+                    gender: c[2].trim().toUpperCase()==='F'?'F':'M', 
+                    wins: parseInt(c[3])||0, 
+                    active: true, 
+                    partners: [], 
+                    gamesPlayed: 0, 
+                    restStreak: 0, 
+                    restMode: 0 
+                });
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+        }
         
         players = players.map(p => {
             if (p.restMode === undefined) {
@@ -147,6 +215,7 @@
         let currentMode = "";
         let currentModeName = "";
         let currentResting = [];
+        let playerSortMode = 'default'; // ★ ソート状態を保持する変数
 
         function save() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
@@ -186,6 +255,7 @@
             document.getElementById('p-name').value = '';
             save();
         }
+        
         function toggleActive(id) { players = players.map(p => p.id === id ? {...p, active: !p.active} : p); save(); }
         
         function toggleRestMode(id) { 
@@ -198,11 +268,66 @@
             save(); 
         }
 
+        // ★ 新機能：ランクを直接変更する関数
+        function updateRank(id, newRank) {
+            players = players.map(p => p.id === id ? {...p, rank: parseInt(newRank)} : p);
+            save();
+        }
+
+        // ★ ソート状態を変更して再描画する関数
+        function setPlayerSort(mode) {
+            playerSortMode = mode;
+            renderAll();
+        }
+
         function renderAll() {
             const activeP = players.filter(p=>p.active);
             document.getElementById('header-count').innerText = "参加: " + activeP.length + "名";
             
-            document.getElementById('player-list-area').innerHTML = players.map(p => {
+            // ★ テキストエリアにも現在のデータを反映しとく
+            const csvArea = document.getElementById('csv-area');
+            if (csvArea) {
+                let currentCsv = "名前,ランク,性別,勝数\n";
+                players.forEach(p => { currentCsv += p.name + "," + p.rank + "," + p.gender + "," + p.wins + "\n"; });
+                csvArea.value = currentCsv;
+            }
+
+            // ソートボタンのUI状態（色）を更新
+            ['default', 'gender', 'rank', 'rest'].forEach(mode => {
+                const btn = document.getElementById('sort-' + mode);
+                if (btn) {
+                    if (mode === playerSortMode) {
+                        btn.className = "px-2 py-1 rounded border transition-colors bg-indigo-100 text-indigo-700 font-bold border-indigo-300";
+                    } else {
+                        btn.className = "px-2 py-1 rounded border transition-colors bg-white text-gray-500 border-gray-200";
+                    }
+                }
+            });
+
+            // ★ 表示用にプレイヤー配列をコピーしてソート
+            let displayPlayers = [...players];
+            displayPlayers.sort((a, b) => {
+                // 1. まず「今日来てない（非アクティブ）」人は問答無用で下に配置
+                if (a.active !== b.active) return a.active ? -1 : 1;
+                
+                // 2. アクティブ状態が同じなら、選ばれたモードでソート
+                if (playerSortMode === 'gender') {
+                    // 男女別 (男性Mが先) -> 同性ならランク順
+                    return b.gender.localeCompare(a.gender) || a.rank - b.rank;
+                } else if (playerSortMode === 'rank') {
+                    // ランク順 (1 -> 2 -> 3) -> 同ランクなら男女別
+                    return a.rank - b.rank || b.gender.localeCompare(a.gender);
+                } else if (playerSortMode === 'rest') {
+                    // 状態別 (参加中0 -> 1回休1 -> 休止中2) -> 同状態ならランク順
+                    return a.restMode - b.restMode || a.rank - b.rank;
+                }
+                
+                // 3. デフォルトは追加した順番（id順）
+                return a.id - b.id;
+            });
+
+            // ソート済みの配列を使って画面に描画
+            document.getElementById('player-list-area').innerHTML = displayPlayers.map(p => {
                 let restBtnClass = 'bg-gray-50 border-gray-200 text-gray-400';
                 let restBtnText = '参加中';
                 if (p.restMode === 1) {
@@ -217,7 +342,13 @@
                 <div class="flex items-center justify-between p-3 rounded-lg border bg-white mb-2 shadow-sm ${p.gender==='M'?'border-blue-100':'border-pink-100'} ${p.active?'':'opacity-40'}">
                     <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleActive(${p.id})">
                         <div class="w-8 h-8 rounded-full ${p.gender==='M'?'bg-blue-400':'bg-pink-400'} flex items-center justify-center text-white text-[10px] font-bold">${p.name[0]}</div>
-                        <span class="text-sm font-bold ${p.gender==='M'?'text-male':'text-female'}">${p.name} <span class="text-[10px] text-gray-400">R${p.rank}</span></span>
+                        <span class="text-sm font-bold ${p.gender==='M'?'text-male':'text-female'}">${p.name} 
+                            <select onchange="updateRank(${p.id}, this.value)" onclick="event.stopPropagation()" class="text-[10px] text-gray-500 bg-gray-50 border border-gray-200 rounded px-1 ml-1 font-normal focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="1" ${p.rank === 1 ? 'selected' : ''}>R1:強</option>
+                                <option value="2" ${p.rank === 2 ? 'selected' : ''}>R2:中</option>
+                                <option value="3" ${p.rank === 3 ? 'selected' : ''}>R3:弱</option>
+                            </select>
+                        </span>
                     </div>
                     <div class="flex gap-2 items-center">
                         ${p.active ? `<button onclick="toggleRestMode(${p.id})" class="w-16 px-1 py-1 text-[10px] rounded border font-bold transition-all ${restBtnClass}">${restBtnText}</button>` : ''}
@@ -334,20 +465,15 @@
             renderMatches(currentResting);
         }
 
-        // ★ 新機能：試合の順番（コート）を入れ替える関数
         function moveMatch(index, direction) {
-            // 配列の範囲外なら何もしない
             if (index + direction < 0 || index + direction >= matches.length) return;
             
-            // 配列の要素をスワップ（入れ替え）
             const temp = matches[index];
             matches[index] = matches[index + direction];
             matches[index + direction] = temp;
             
-            // コート番号を上から順に振り直す
             matches.forEach((m, i) => { m.court = i + 1; });
             
-            // 保存して再描画
             save(); 
             renderMatches(currentResting);
         }
@@ -360,10 +486,8 @@
                 area.innerHTML = matches.map((m, idx) => `
                 <div class="match-card p-4 rounded-xl border shadow-md relative overflow-hidden transition-all ${m.isDone ? 'bg-gray-100 opacity-60 border-gray-300' : 'bg-white'}">
                     
-                    <!-- 印刷時用のラベル（画面では隠す） -->
                     <div class="print-court-label">第${m.court}コート</div>
 
-                    <!-- 画面表示用のラベルと入れ替えボタン -->
                     <div class="court-label-area absolute top-0 left-0 flex shadow-sm z-10">
                         <div class="${m.isDone ? 'bg-gray-400' : 'bg-gray-800'} text-white text-[10px] px-3 py-1 font-bold flex items-center">第${m.court}コート</div>
                         <div class="flex bg-gray-100 border-b border-r border-gray-300 rounded-br-lg overflow-hidden">
