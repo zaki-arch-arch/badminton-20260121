@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matcher Pro - バドミントン対戦表</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        /* ランクの色分け */
-        .rank-1 { background-color: #fee2e2; color: #991b1b; } /* 強: 赤系 */
-        .rank-2 { background-color: #fef3c7; color: #92400e; } /* 中: 黄系 */
-        .rank-3 { background-color: #d1fae5; color: #065f46; } /* 弱: 緑系 */
-    </style>
     <link rel="manifest" href="./manifest.json">
 
 <script>
@@ -28,22 +14,33 @@
     });
   }
 </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matcher Pro 2 - バドミントン対戦表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        /* ランクの色分け */
+        .rank-1 { background-color: #fee2e2; color: #991b1b; } /* 強: 赤系 */
+        .rank-2 { background-color: #fef3c7; color: #92400e; } /* 中: 黄系 */
+        .rank-3 { background-color: #d1fae5; color: #065f46; } /* 弱: 緑系 */
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans pb-20">
 
-    <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-10 flex justify-between items-center">
-        <h1 class="text-xl font-bold"><i class="fas fa-shuttlecock mr-2"></i>Matcher Pro</h1>
+        <h1 class="text-xl font-bold"><i class="fas fa-shuttlecock mr-2"></i>Matcher Pro 2</h1>
         <div class="flex items-center gap-3">
             <span class="text-xs font-bold bg-white text-blue-600 px-2 py-1 rounded-full shadow-sm">参加: <span id="headerTotalCount">0</span>人</span>
             <button id="resetDataBtn" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded shadow">初期化</button>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="p-4 max-w-lg mx-auto">
         
-        <!-- Tab 1: マッチング -->
         <div id="tab-matching" class="tab-content active">
             <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <div class="flex justify-between items-center mb-4">
@@ -74,20 +71,17 @@
             </div>
 
             <div id="matchResults" class="space-y-4">
-                <!-- 試合結果がここに生成される -->
-                <div class="text-center text-gray-500 py-8"><i class="fas fa-info-circle mr-1"></i>条件を設定して試合を生成してください</div>
+                <div class="text-center text-gray-500 py-8"><i class="fas fa-info-circle mr-1"></i>条件を設定して試合を生成してや</div>
             </div>
 
             <div class="mt-6 bg-white rounded-lg shadow p-4">
                 <h3 class="font-bold text-gray-700 mb-2 border-b pb-1"><i class="fas fa-mug-hot mr-2"></i>今回のお休み（休憩）</h3>
                 <div id="restingPlayers" class="flex flex-wrap gap-2 text-sm">
-                    <!-- 休憩者がここに表示される -->
-                    <span class="text-gray-400">試合生成後に表示されます</span>
+                    <span class="text-gray-400">試合生成後に表示されるで</span>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 2: 選手管理 -->
         <div id="tab-players" class="tab-content">
             <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <h2 class="text-lg font-semibold border-b-2 border-green-500 pb-1 mb-3">新規登録</h2>
@@ -116,15 +110,17 @@
             </div>
 
             <div class="bg-white rounded-lg shadow overflow-hidden">
-                <ul id="playerList" class="divide-y divide-gray-200">
-                    <!-- 選手リストがここに生成される -->
-                </ul>
+                <ul id="playerList" class="divide-y divide-gray-200"></ul>
+            </div>
+            
+            <div class="mt-2 flex justify-end">
+                <button onclick="deleteAllPlayers()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-3 py-2 rounded flex items-center shadow-sm transition-colors">
+                    <i class="fas fa-trash-alt mr-1"></i>全選手を一括削除
+                </button>
             </div>
 
-            <!-- データ入出力 -->
             <div class="bg-white rounded-lg shadow p-4 mt-4 mb-4">
                 <h2 class="text-lg font-semibold border-b-2 border-gray-500 pb-1 mb-3">データバックアップ・復元</h2>
-                <p class="text-xs text-gray-500 mb-2">過去のデータをコピーして保存したり、貼り付けて復元できます。</p>
                 <div class="flex flex-col gap-2">
                     <button onclick="exportData()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-bold shadow"><i class="fas fa-copy mr-2"></i>現在のデータをコピー</button>
                     <textarea id="importDataText" rows="2" placeholder="ここにコピーしたデータを貼り付け" class="border rounded p-2 text-xs w-full mt-2"></textarea>
@@ -133,11 +129,10 @@
             </div>
         </div>
 
-        <!-- Tab 3: 成績 -->
         <div id="tab-stats" class="tab-content">
             <div class="bg-white rounded-lg shadow p-4">
                 <h2 class="text-lg font-semibold border-b-2 border-purple-500 pb-1 mb-3">成績・出場状況</h2>
-                <p class="text-xs text-gray-500 mb-4">出場回数が均等になるようシステムが自動調整しています。</p>
+                <p class="text-xs text-gray-500 mb-4">出場回数が均等になるようシステムが自動調整してるで。<br><span class="text-blue-600 font-bold">※参加人数が多い場合、2連続での「出番」や「休み」は許容しつつ、3連続は絶対に防ぐロジックで動いてるで。</span></p>
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead class="bg-gray-50">
@@ -145,20 +140,18 @@
                                 <th class="px-2 py-2 text-left text-gray-600">名前</th>
                                 <th class="px-2 py-2 text-center text-gray-600">勝</th>
                                 <th class="px-2 py-2 text-center text-gray-600">出場</th>
-                                <th class="px-2 py-2 text-center text-gray-600" title="システムによる自動休憩">休</th>
-                                <th class="px-2 py-2 text-center text-gray-600" title="自己都合の1回休・休止">任休</th>
+                                <th class="px-2 py-2 text-center text-gray-600" title="連続出場">連出</th>
+                                <th class="px-2 py-2 text-center text-gray-600" title="連続休み">連休</th>
+                                <th class="px-2 py-2 text-center text-gray-600">休</th>
                             </tr>
                         </thead>
-                        <tbody id="statsList" class="divide-y divide-gray-200">
-                            <!-- 成績がここに生成される -->
-                        </tbody>
+                        <tbody id="statsList" class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around pb-safe">
         <button onclick="switchTab('matching')" id="nav-matching" class="nav-btn flex-1 py-3 text-center text-blue-600 flex flex-col items-center">
             <i class="fas fa-random text-xl mb-1"></i><span class="text-xs font-bold">マッチング</span>
@@ -171,16 +164,11 @@
         </button>
     </nav>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50">
-        メッセージ
-    </div>
-
-    <!-- カスタム確認モーダル（追加） -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50"></div>
     <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-6 w-11/12 max-w-sm shadow-xl">
             <h3 class="text-lg font-bold mb-4" id="modalTitle">確認</h3>
-            <p class="text-sm text-gray-600 mb-6" id="modalMessage">本当に実行しますか？</p>
+            <p class="text-sm text-gray-600 mb-6" id="modalMessage">ホンマに実行するんか？</p>
             <div class="flex justify-end gap-3">
                 <button id="modalCancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded font-bold hover:bg-gray-300">キャンセル</button>
                 <button id="modalOkBtn" class="px-4 py-2 bg-red-600 text-white rounded font-bold hover:bg-red-700">実行する</button>
@@ -191,71 +179,68 @@
     <script>
         // --- 状態管理 ---
         let state = {
-            players: [],
-            courtCount: 3,
-            history: [] 
+            players: [], courtCount: 3, pairHistory: {}, oppHistory: {}, lastMatches: [],
+            coPlayHistory: {} 
         };
 
         // --- 初期化・データロード ---
         function loadData() {
-            const saved = localStorage.getItem('matcherProState');
-            if (saved) {
-                state = JSON.parse(saved);
-                // 後方互換性チェック（新しいプロパティを追加）
-                state.players.forEach(p => {
-                    p.matchCount = p.matchCount || 0;
-                    p.restCount = p.restCount || 0;
-                    p.manualRestCount = p.manualRestCount || 0; // 任意の休み（1回休・休止）の回数
-                    p.winCount = p.winCount || 0;
-                    p.status = p.status || 'active'; 
-                    p.wasResting = p.wasResting || false; 
-                });
+            try {
+                const saved = localStorage.getItem('matcherProState');
+                if (saved) {
+                    state = JSON.parse(saved);
+                    state.pairHistory = state.pairHistory || {};
+                    state.oppHistory = state.oppHistory || {};
+                    state.lastMatches = state.lastMatches || [];
+                    state.coPlayHistory = state.coPlayHistory || {};
+
+                    state.players.forEach(p => {
+                        p.matchCount = p.matchCount || 0;
+                        p.restCount = p.restCount || 0;
+                        p.manualRestCount = p.manualRestCount || 0; 
+                        p.winCount = p.winCount || 0;
+                        p.consecutiveMatches = p.consecutiveMatches || 0;
+                        p.continuousRest = p.continuousRest || 0; 
+                        p.status = p.status || 'active'; 
+                        p.wasResting = p.wasResting || false; 
+                        p.justReturned = p.justReturned || false; 
+                    });
+                }
+            } catch(e) {
+                console.warn('プレビュー環境やからlocalStorageは使えへんで。データは一時的に保存されるわ。');
             }
             document.getElementById('courtCount').value = state.courtCount || 3;
             renderAll();
         }
 
-        function saveData() {
-            localStorage.setItem('matcherProState', JSON.stringify(state));
+        function saveData() { 
+            try {
+                localStorage.setItem('matcherProState', JSON.stringify(state)); 
+            } catch(e) {
+                console.warn('プレビュー環境やからセーブできへんで。');
+            }
         }
 
         // --- UI更新 ---
         function renderAll() {
-            renderPlayers();
-            renderStats();
-            
-            // 参加人数（休止中以外）の集計
+            renderPlayers(); renderStats();
             const activePlayers = state.players.filter(p => p.status !== 'inactive');
-            const r1Count = activePlayers.filter(p => p.rank === 1).length;
-            const r2Count = activePlayers.filter(p => p.rank === 2).length;
-            const r3Count = activePlayers.filter(p => p.rank === 3).length;
-
-            // ヘッダーの総人数更新
-            const headerTotalEl = document.getElementById('headerTotalCount');
-            if(headerTotalEl) headerTotalEl.textContent = activePlayers.length;
-
-            // レベル別人数の更新
-            const cR1 = document.getElementById('countR1');
-            const cR2 = document.getElementById('countR2');
-            const cR3 = document.getElementById('countR3');
-            if(cR1) cR1.textContent = r1Count;
-            if(cR2) cR2.textContent = r2Count;
-            if(cR3) cR3.textContent = r3Count;
+            document.getElementById('headerTotalCount').textContent = activePlayers.length;
+            document.getElementById('countR1').textContent = activePlayers.filter(p => p.rank === 1).length;
+            document.getElementById('countR2').textContent = activePlayers.filter(p => p.rank === 2).length;
+            document.getElementById('countR3').textContent = activePlayers.filter(p => p.rank === 3).length;
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            
             document.querySelectorAll('.nav-btn').forEach(el => {
                 el.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600');
                 el.classList.add('text-gray-400');
             });
-            
             const colorClass = tabId === 'matching' ? 'text-blue-600' : tabId === 'players' ? 'text-green-600' : 'text-purple-600';
             document.getElementById(`nav-${tabId}`).classList.remove('text-gray-400');
             document.getElementById(`nav-${tabId}`).classList.add(colorClass);
-
             if(tabId === 'stats') renderStats();
         }
 
@@ -263,117 +248,114 @@
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.classList.remove('opacity-0');
-            setTimeout(() => toast.classList.add('opacity-0'), 2000);
+            setTimeout(() => toast.classList.add('opacity-0'), 2500);
         }
 
-        // --- モーダル制御（ワシが消してもうてた部分！完全復活！） ---
         let modalCallback = null;
         function showConfirm(title, message, callback, okText = "リセットする", okColorClass = "bg-red-600") {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalMessage').textContent = message;
-            
             const okBtn = document.getElementById('modalOkBtn');
             okBtn.textContent = okText;
             okBtn.className = `px-4 py-2 text-white rounded font-bold ${okColorClass} hover:opacity-80`;
-            
             modalCallback = callback;
             document.getElementById('confirmModal').classList.remove('hidden');
         }
 
-        document.getElementById('modalCancelBtn').addEventListener('click', () => {
-            document.getElementById('confirmModal').classList.add('hidden');
-            modalCallback = null;
-        });
-
-        document.getElementById('modalOkBtn').addEventListener('click', () => {
-            document.getElementById('confirmModal').classList.add('hidden');
-            if (modalCallback) modalCallback();
-        });
+        document.getElementById('modalCancelBtn').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); modalCallback = null; });
+        document.getElementById('modalOkBtn').addEventListener('click', () => { document.getElementById('confirmModal').classList.add('hidden'); if (modalCallback) modalCallback(); });
 
         // --- 選手管理処理 ---
         document.getElementById('addPlayerForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('newPlayerName').value;
-            const gender = document.getElementById('newPlayerGender').value;
-            const rank = parseInt(document.getElementById('newPlayerRank').value);
-            
             state.players.push({
-                id: 'p' + Date.now(),
-                name, gender, rank, status: 'active',
-                matchCount: 0, restCount: 0, manualRestCount: 0, winCount: 0, wasResting: false
+                id: 'p' + Date.now(), name, gender: document.getElementById('newPlayerGender').value, 
+                rank: parseInt(document.getElementById('newPlayerRank').value), status: 'active',
+                matchCount: 0, restCount: 0, manualRestCount: 0, winCount: 0, 
+                consecutiveMatches: 0, continuousRest: 0, wasResting: false, justReturned: false
             });
-            
             document.getElementById('newPlayerName').value = '';
-            saveData();
-            renderAll();
-            showToast(`${name}を追加しました`);
+            saveData(); renderAll(); showToast(`${name}を追加したで！`);
         });
 
         function changePlayerStatus(id, newStatus) {
             const player = state.players.find(p => p.id === id);
-            if(player) {
-                player.status = newStatus;
-                saveData();
-                renderAll();
+            if(player) { 
+                const oldStatus = player.status;
+                player.status = newStatus; 
+                
+                if ((oldStatus === 'inactive' || oldStatus === 'skip1') && newStatus === 'active') {
+                    const activeOthers = state.players.filter(p => p.status === 'active' && p.id !== id);
+                    if (activeOthers.length > 0) {
+                        // ★修正箇所：休止明けのメンバーは、全体の「最小出場回数」に合わせて復帰させる（不公平感の排除）★
+                        const minMatch = Math.min(...activeOthers.map(p => p.matchCount));
+                        player.matchCount = minMatch;
+                    }
+                    
+                    player.continuousRest = 0;
+                    player.consecutiveMatches = 0;
+                    player.justReturned = true;
+                    showToast(`${player.name} を復帰させたで！次回は確実に出るわ！`);
+                }
+                
+                saveData(); 
+                renderAll(); 
             }
         }
 
         function changePlayerRank(id, newRank) {
             const player = state.players.find(p => p.id === id);
-            if(player) {
-                player.rank = parseInt(newRank);
-                saveData();
-                renderAll();
-                showToast(`${player.name}のランクを変更しました`);
-            }
+            if(player) { player.rank = parseInt(newRank); saveData(); renderAll(); showToast('ランク変更したで'); }
         }
-
-        // --- 個別削除機能（追加） ---
+        
         window.deletePlayer = function(id, name) {
+            showConfirm('選手削除', `${name} を削除するで？`, () => {
+                state.players = state.players.filter(p => p.id !== id);
+                saveData(); renderAll(); showToast(`${name} を削除したで`);
+            }, "削除する", "bg-red-600");
+        };
+
+        window.deleteAllPlayers = function() {
+            if (state.players.length === 0) {
+                showToast('削除する選手がおらへんで！');
+                return;
+            }
             showConfirm(
-                '選手削除',
-                `${name} さんのデータを完全に削除しますか？（成績・履歴も全て消えます）`,
+                '全選手一括削除（危険）',
+                '登録されてる全選手と、これまでの対戦履歴・成績を全部スッキリ消し飛ばすで？ホンマにええか？（復元できへんで！）',
                 () => {
-                    // 指定されたID以外の選手だけを残す（＝削除）
-                    state.players = state.players.filter(p => p.id !== id);
-                    saveData();
-                    renderAll();
-                    showToast(`${name} さんを削除しました`);
+                    state.players = []; state.pairHistory = {}; state.oppHistory = {}; 
+                    state.lastMatches = []; state.coPlayHistory = {}; saveData(); renderAll(); 
+                    document.getElementById('matchResults').innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-info-circle mr-1"></i>条件を設定して試合を生成してや</div>';
+                    document.getElementById('restingPlayers').innerHTML = '<span class="text-gray-400">試合生成後に表示されるで</span>';
+                    showToast('全選手を削除して更地にしたで！');
                 },
-                "削除する",
-                "bg-red-600"
+                "全部消す", "bg-red-700"
             );
         };
 
         function renderPlayers() {
             const list = document.getElementById('playerList');
             list.innerHTML = '';
-            
-            // 並び替え: active優先 -> 名前
             const sorted = [...state.players].sort((a, b) => {
                 if(a.status === 'inactive' && b.status !== 'inactive') return 1;
                 if(a.status !== 'inactive' && b.status === 'inactive') return -1;
                 return a.name.localeCompare(b.name, 'ja');
             });
-
             sorted.forEach(p => {
                 const li = document.createElement('li');
                 li.className = `p-3 flex items-center justify-between ${p.status === 'inactive' ? 'bg-gray-100 opacity-60' : ''}`;
-                
-                const rankColor = `rank-${p.rank}`;
-                const genderColor = p.gender === 'M' ? 'text-blue-500' : 'text-pink-500';
-                const statusBadge = p.status === 'skip1' ? `<span class="ml-2 text-xs bg-yellow-400 text-yellow-900 px-1 rounded">1回休</span>` : '';
-
                 li.innerHTML = `
                     <div class="flex items-center">
-                        <i class="fas fa-user ${genderColor} w-5 text-center mr-2"></i>
+                        <i class="fas fa-user ${p.gender === 'M' ? 'text-blue-500' : 'text-pink-500'} w-5 text-center mr-2"></i>
                         <span class="font-bold text-gray-800">${p.name}</span>
-                        <select onchange="changePlayerRank('${p.id}', this.value)" class="ml-2 text-xs px-2 py-0.5 rounded-full ${rankColor} appearance-none cursor-pointer text-center outline-none border border-transparent hover:border-gray-300 shadow-sm">
+                        <select onchange="changePlayerRank('${p.id}', this.value)" class="ml-2 text-xs px-2 py-0.5 rounded-full rank-${p.rank} appearance-none cursor-pointer text-center outline-none border border-transparent shadow-sm">
                             <option value="1" class="bg-white text-gray-800" ${p.rank === 1 ? 'selected' : ''}>R1(強)</option>
                             <option value="2" class="bg-white text-gray-800" ${p.rank === 2 ? 'selected' : ''}>R2(中)</option>
                             <option value="3" class="bg-white text-gray-800" ${p.rank === 3 ? 'selected' : ''}>R3(弱)</option>
                         </select>
-                        ${statusBadge}
+                        ${p.status === 'skip1' ? `<span class="ml-2 text-xs bg-yellow-400 text-yellow-900 px-1 rounded">1回休</span>` : ''}
                     </div>
                     <div class="flex space-x-2 items-center">
                         <select onchange="changePlayerStatus('${p.id}', this.value)" class="text-xs border rounded p-1 bg-white">
@@ -381,196 +363,260 @@
                             <option value="skip1" ${p.status === 'skip1' ? 'selected' : ''}>1回休</option>
                             <option value="inactive" ${p.status === 'inactive' ? 'selected' : ''}>休止</option>
                         </select>
-                        <button onclick="deletePlayer('${p.id}', '${p.name}')" class="text-red-400 hover:text-red-600 transition-colors p-1" title="削除">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button onclick="deletePlayer('${p.id}', '${p.name}')" class="text-red-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 list.appendChild(li);
             });
         }
 
-        // --- マッチングコアロジック ---
+        const getPairKey = (p1, p2) => [p1.id, p2.id].sort().join('_');
+
+        // --- ペアリングコスト評価関数 ---
+        const evaluateCourtCost = (courtGrp, mode) => {
+            const patterns = [
+                { t1: [courtGrp[0], courtGrp[1]], t2: [courtGrp[2], courtGrp[3]] },
+                { t1: [courtGrp[0], courtGrp[2]], t2: [courtGrp[1], courtGrp[3]] },
+                { t1: [courtGrp[0], courtGrp[3]], t2: [courtGrp[1], courtGrp[2]] }
+            ];
+            let bestPattern = null;
+            let minCost = Infinity;
+
+            patterns.forEach(pat => {
+                let cost = 0;
+                const pair1Key = getPairKey(pat.t1[0], pat.t1[1]);
+                const pair2Key = getPairKey(pat.t2[0], pat.t2[1]);
+
+                // 同じペア2回目禁止（マンネリコストを極大化）
+                if ((state.pairHistory[pair1Key] || 0) >= 1) cost += 50000000;
+                if ((state.pairHistory[pair2Key] || 0) >= 1) cost += 50000000;
+
+                const wasTeam1LastMatch = state.lastMatches.some(m => getPairKey(m.team1[0], m.team1[1]) === pair1Key || getPairKey(m.team2[0], m.team2[1]) === pair1Key);
+                const wasTeam2LastMatch = state.lastMatches.some(m => getPairKey(m.team1[0], m.team1[1]) === pair2Key || getPairKey(m.team2[0], m.team2[1]) === pair2Key);
+                if (wasTeam1LastMatch) cost += 500000; 
+                if (wasTeam2LastMatch) cost += 500000;
+
+                const oppPairs = [
+                    getPairKey(pat.t1[0], pat.t2[0]), getPairKey(pat.t1[0], pat.t2[1]),
+                    getPairKey(pat.t1[1], pat.t2[0]), getPairKey(pat.t1[1], pat.t2[1])
+                ];
+                oppPairs.forEach(key => { 
+                    cost += Math.pow((state.oppHistory[key] || 0), 2) * 1000;
+                });
+
+                if (mode === 'balance') {
+                    const diff = Math.abs((pat.t1[0].rank + pat.t1[1].rank) - (pat.t2[0].rank + pat.t2[1].rank));
+                    cost += diff * 1000;
+                }
+
+                cost += Math.random() * 50; 
+
+                if (cost < minCost) {
+                    minCost = cost;
+                    bestPattern = { ...pat, cost: minCost };
+                }
+            });
+            return bestPattern;
+        };
+
+        // --- マッチング生成コアロジック ---
         document.getElementById('courtCount').addEventListener('change', (e) => {
-            state.courtCount = parseInt(e.target.value) || 1;
-            saveData();
+            state.courtCount = parseInt(e.target.value) || 1; saveData();
         });
 
         document.getElementById('generateMatchBtn').addEventListener('click', () => {
             const mode = document.querySelector('input[name="matchMode"]:checked').value;
             const requiredPlayers = state.courtCount * 4;
             
-            // 1. 候補者の選定
             let candidates = state.players.filter(p => p.status === 'active');
             let skip1Players = state.players.filter(p => p.status === 'skip1');
             const inactivePlayers = state.players.filter(p => p.status === 'inactive');
             const originalSkip1 = [...skip1Players];
             
-            if ((candidates.length + skip1Players.length) < requiredPlayers && candidates.length > 0) {
-                 // 1回休を含めても足りない場合は警告。今回はシンプルに候補者だけで回す。
-                 // 本来はコート数を減らす提案が必要だが、強行する。
+            if(candidates.length < 4) {
+                showToast('参加可能人数が少なすぎるで！（最低4人必要）。'); return;
             }
 
-            // 1回休の人は今回は強制的に候補から外し、「休んだ」フラグを立てて、次回はactiveに戻す処理を後で行う。
-            
-            // 評価値の計算（小さいほど選ばれやすい）
-            candidates.forEach(p => {
-                // 基本は出場回数が多いほどスコアが高くなる(選ばれにくい)
-                p._score = p.matchCount * 100;
-                // 前回休んだ人は超強力に優先(-500点)
-                if (p.wasResting) p._score -= 500;
-                // 同点時の揺らぎ
-                p._score += Math.random() * 10;
-            });
+            const maxMatchCount = candidates.length > 0 ? Math.max(...candidates.map(p => p.matchCount)) : 0;
+            const minMatchCount = candidates.length > 0 ? Math.min(...candidates.map(p => p.matchCount)) : 0;
 
-            // スコア順にソートして必要な人数だけ抽出
-            candidates.sort((a, b) => a._score - b._score);
-            let selectedPlayers = candidates.slice(0, requiredPlayers);
-            let restingThisRound = candidates.slice(requiredPlayers).concat(skip1Players);
+            let bestOverallMatches = [];
+            let bestSelectedPlayers = [];
+            let bestRestingPlayers = [];
+            let minOverallCost = Infinity;
 
-            if(selectedPlayers.length < 4) {
-                alert('参加可能人数が少なすぎます（最低4人必要）。コート数を減らすか休止中の人を参加にしてください。');
-                return;
-            }
+            for (let iter = 0; iter < 3000; iter++) {
+                
+                // ★改善版「神ソート」ロジック★
+                let shuffled = [...candidates].sort((a, b) => {
+                    // 1. VIP（前回休止から復帰した人）は最優先で出す
+                    if (a.justReturned && !b.justReturned) return -1;
+                    if (!a.justReturned && b.justReturned) return 1;
 
-            // 選ばれた人数が4の倍数でない場合、末尾を切り捨てる（コートが埋まらないため）
-            const validCount = Math.floor(selectedPlayers.length / 4) * 4;
-            const overflow = selectedPlayers.slice(validCount);
-            selectedPlayers = selectedPlayers.slice(0, validCount);
-            restingThisRound = restingThisRound.concat(overflow);
+                    // 2. 「2連続で休んでいる人（次休むと3連休）」は絶対に優先して出す
+                    if (a.continuousRest >= 2 && b.continuousRest < 2) return -1;
+                    if (a.continuousRest < 2 && b.continuousRest >= 2) return 1;
 
-            // 2. ペアリングロジック (最強AIパズル方式)
-            const matches = [];
+                    // 3. 「2連続で出場している人（次出ると3連戦）」は絶対に優先して休ませる（後回し）
+                    if (a.consecutiveMatches >= 2 && b.consecutiveMatches < 2) return 1;
+                    if (a.consecutiveMatches < 2 && b.consecutiveMatches >= 2) return -1;
 
-            if (mode === 'balance') {
-                // 【1. ペアリング評価関数】
-                // 4人のペアリングで、チーム間のランク合計の「差」を計算し、最も差が小さい組み合わせを返す
-                const getBestPairing = (p) => {
-                    const patterns = [
-                        { t1: [p[0], p[1]], t2: [p[2], p[3]], diff: Math.abs((p[0].rank + p[1].rank) - (p[2].rank + p[3].rank)) },
-                        { t1: [p[0], p[2]], t2: [p[1], p[3]], diff: Math.abs((p[0].rank + p[2].rank) - (p[1].rank + p[3].rank)) },
-                        { t1: [p[0], p[3]], t2: [p[1], p[2]], diff: Math.abs((p[0].rank + p[3].rank) - (p[1].rank + p[2].rank)) }
-                    ];
-                    patterns.sort(() => Math.random() - 0.5); // 同点時に偏らないようシャッフル
-                    patterns.sort((a, b) => a.diff - b.diff);
-                    return patterns[0];
-                };
+                    // 4. 試合数が少ない人を優先して出す（ロードバランシング）
+                    if (a.matchCount !== b.matchCount) {
+                        return a.matchCount - b.matchCount;
+                    }
 
-                // 【2. 初期配置】完全にランダムに4人ずつコートに放り込む
-                selectedPlayers.sort(() => Math.random() - 0.5);
-                let courts = [];
-                for (let i = 0; i < selectedPlayers.length; i += 4) {
-                    courts.push(selectedPlayers.slice(i, i + 4));
-                }
+                    // 5. 上記の条件が同じ人同士は、ランダムに並べ替える（マンネリ防止）
+                    return Math.random() - 0.5;
+                });
+                
+                let currentSelected = shuffled.slice(0, requiredPlayers);
+                let currentResting = shuffled.slice(requiredPlayers);
+                
+                const validCount = Math.floor(currentSelected.length / 4) * 4;
+                const overflow = currentSelected.slice(validCount);
+                currentSelected = currentSelected.slice(0, validCount);
+                currentResting = currentResting.concat(overflow);
 
-                // 【3. 局所探索（山登り法）でパズルを解く】
-                // 全コートの「実力差（diff）」の合計が0（ユーザーの指定した7パターンの状態）になるまで、人を入れ替える
-                let currentScore = courts.reduce((sum, c) => sum + getBestPairing(c).diff, 0);
+                let selectionCost = 0;
+                
+                // (A) 休みメンバーに対するコスト
+                currentResting.forEach(p => {
+                    if (p.justReturned) {
+                        selectionCost += 10000000; // VIPチケット持ちは絶対に休ませない
+                    }
 
-                for (let iter = 0; iter < 1000; iter++) {
-                    if (currentScore === 0) break; // 全コートが理想の7パターンのいずれかになったら完了！
+                    let debt = maxMatchCount - p.matchCount; 
+                    
+                    // 2回遅れまでは許容する
+                    if (debt === 1) selectionCost += 10; 
+                    if (debt === 2) selectionCost += 100; 
+                    if (debt >= 3) selectionCost += 500000; // 3回遅れは阻止
+                    
+                    // 2連休は許す。3連休は絶対禁止
+                    if (p.continuousRest === 1) selectionCost += 10; 
+                    if (p.continuousRest >= 2) selectionCost += 50000000; // 今回休むと3連休以上になる場合は超巨大ペナルティ
+                });
+                
+                // (B) 選出メンバーに対するコスト
+                currentSelected.forEach(p => {
+                    let overPlay = p.matchCount - minMatchCount; 
+                    
+                    // 2回出すぎまでは許容する
+                    if (overPlay === 1) selectionCost += 10; 
+                    if (overPlay === 2) selectionCost += 100;
+                    if (overPlay >= 3) selectionCost += 500000;
 
-                    // ランダムに2つのコートを選ぶ
-                    const c1Idx = Math.floor(Math.random() * courts.length);
-                    const c2Idx = Math.floor(Math.random() * courts.length);
-                    if (c1Idx === c2Idx) continue;
+                    // 2連出は許す。3連出は絶対禁止
+                    if (p.consecutiveMatches === 1) selectionCost += 10; 
+                    if (p.consecutiveMatches >= 2) selectionCost += 50000000; // 今回出ると3連戦以上になる場合は超巨大ペナルティ
+                });
+                
+                let currentMatches = [];
+                let pairingCost = 0;
+                let coPlayCost = 0; 
+                
+                for (let i = 0; i < currentSelected.length; i += 4) {
+                    const courtGrp = currentSelected.slice(i, i + 4);
+                    
+                    for(let x = 0; x < courtGrp.length; x++) {
+                        for(let y = x + 1; y < courtGrp.length; y++) {
+                            const key = getPairKey(courtGrp[x], courtGrp[y]);
+                            coPlayCost += Math.pow((state.coPlayHistory[key] || 0), 2) * 1500;
+                        }
+                    }
 
-                    // それぞれのコートからランダムに1人選ぶ
-                    const p1Idx = Math.floor(Math.random() * 4);
-                    const p2Idx = Math.floor(Math.random() * 4);
-
-                    // 入れ替え前の2コートのスコア
-                    const scoreBefore = getBestPairing(courts[c1Idx]).diff + getBestPairing(courts[c2Idx]).diff;
-
-                    // 一旦入れ替えてみる
-                    const temp = courts[c1Idx][p1Idx];
-                    courts[c1Idx][p1Idx] = courts[c2Idx][p2Idx];
-                    courts[c2Idx][p2Idx] = temp;
-
-                    // 入れ替え後のスコア
-                    const scoreAfter = getBestPairing(courts[c1Idx]).diff + getBestPairing(courts[c2Idx]).diff;
-
-                    if (scoreAfter < scoreBefore || (scoreAfter === scoreBefore && Math.random() < 0.2)) {
-                        // 改善した、または20%の確率で同じスコアでも採用（色んなパターンを出させるため）
-                        currentScore += (scoreAfter - scoreBefore);
-                    } else {
-                        // 改悪された場合は元に戻す
-                        const temp2 = courts[c1Idx][p1Idx];
-                        courts[c1Idx][p1Idx] = courts[c2Idx][p2Idx];
-                        courts[c2Idx][p2Idx] = temp2;
+                    const bestCourtPat = evaluateCourtCost(courtGrp, mode);
+                    if (bestCourtPat) {
+                        currentMatches.push({
+                            team1: bestCourtPat.t1, team2: bestCourtPat.t2, status: 'playing'
+                        });
+                        pairingCost += bestCourtPat.cost;
                     }
                 }
-
-                // 【4. 最終結果をmatchesに格納】
-                courts.forEach(c => {
-                    const best = getBestPairing(c);
-                    matches.push({
-                        team1: best.t1,
-                        team2: best.t2,
-                        status: 'playing'
-                    });
-                });
-
-            } else {
-                // 【完全ランダムモード】
-                selectedPlayers.sort(() => Math.random() - 0.5);
-
-                for (let i = 0; i < selectedPlayers.length; i += 4) {
-                    let courtGroup = selectedPlayers.slice(i, i + 4);
-                    matches.push({
-                        team1: [courtGroup[0], courtGroup[1]],
-                        team2: [courtGroup[2], courtGroup[3]],
-                        status: 'playing'
-                    });
+                
+                const totalCost = selectionCost + pairingCost + coPlayCost;
+                
+                if (totalCost < minOverallCost) {
+                    minOverallCost = totalCost;
+                    bestOverallMatches = currentMatches;
+                    bestSelectedPlayers = currentSelected;
+                    bestRestingPlayers = currentResting;
                 }
             }
 
-            // 3. 状態の更新
-            // 今回出た人
-            selectedPlayers.forEach(p => {
+            const matches = bestOverallMatches;
+
+            // --- 状態の更新処理 ---
+            bestSelectedPlayers.forEach(p => {
                 const player = state.players.find(x => x.id === p.id);
                 player.matchCount++;
+                player.consecutiveMatches++; 
+                player.continuousRest = 0;   
                 player.wasResting = false;
+                player.justReturned = false; // 試合に出たのでVIPチケット没収
             });
 
-            // 【改修】休みのカウントを「自動休」と「任意休」に完全に分離する
-            
-            // ① 今回システムによって自動で休まされた人
-            const autoRests = restingThisRound.filter(p => !originalSkip1.some(s => s.id === p.id));
+            const autoRests = bestRestingPlayers; 
             autoRests.forEach(p => {
                 const player = state.players.find(x => x.id === p.id);
-                player.restCount++; // 自動の休みをカウント
-                player.wasResting = true; // 次回は優先して出す
+                player.restCount++; 
+                player.consecutiveMatches = 0; 
+                player.continuousRest++;       
+                player.wasResting = true; 
             });
 
-            // ② 1回休（任意休）の人
             originalSkip1.forEach(p => {
                 const player = state.players.find(x => x.id === p.id);
-                player.manualRestCount++; // 任意の休みをカウント
-                player.wasResting = true; // 1回休明けも優先してあげる（優しさ）
-                player.status = 'active'; // 試合が回ったので参加中に戻す
+                player.manualRestCount++; 
+                player.consecutiveMatches = 0;
+                player.continuousRest++; 
+                player.status = 'active'; 
             });
 
-            // ③ 休止中（任意休）の人
             inactivePlayers.forEach(p => {
                 const player = state.players.find(x => x.id === p.id);
-                player.manualRestCount++; // 試合が回るたびに休止回数をカウント
-                // 休止中はいつ戻るかわからないので wasResting は触らない
+                player.manualRestCount++; 
+                player.consecutiveMatches = 0;
+            });
+
+            state.lastMatches = matches.map(m => ({
+                team1: [{id: m.team1[0].id}, {id: m.team1[1].id}],
+                team2: [{id: m.team2[0].id}, {id: m.team2[1].id}]
+            }));
+
+            matches.forEach(m => {
+                const pair1 = getPairKey(m.team1[0], m.team1[1]);
+                const pair2 = getPairKey(m.team2[0], m.team2[1]);
+                state.pairHistory[pair1] = (state.pairHistory[pair1] || 0) + 1;
+                state.pairHistory[pair2] = (state.pairHistory[pair2] || 0) + 1;
+
+                const opps = [
+                    getPairKey(m.team1[0], m.team2[0]), getPairKey(m.team1[0], m.team2[1]),
+                    getPairKey(m.team1[1], m.team2[0]), getPairKey(m.team1[1], m.team2[1])
+                ];
+                opps.forEach(key => { state.oppHistory[key] = (state.oppHistory[key] || 0) + 1; });
+
+                const pAll = [...m.team1, ...m.team2];
+                for(let i = 0; i < pAll.length; i++) {
+                    for(let j = i + 1; j < pAll.length; j++) {
+                        const key = getPairKey(pAll[i], pAll[j]);
+                        state.coPlayHistory[key] = (state.coPlayHistory[key] || 0) + 1;
+                    }
+                }
             });
 
             saveData();
-            renderMatches(matches, restingThisRound, originalSkip1, inactivePlayers);
-            showToast('対戦表を生成しました');
+            renderMatches(matches, bestRestingPlayers, originalSkip1, inactivePlayers);
+            showToast('神アサインが完成したで！');
         });
 
         function renderMatches(matches, restingPlayers, skip1Players = [], inactivePlayers = []) {
             const container = document.getElementById('matchResults');
             container.innerHTML = '';
-
             matches.forEach((m, index) => {
                 const div = document.createElement('div');
                 div.className = 'bg-white rounded-lg shadow border-l-4 border-blue-500 overflow-hidden';
-                
                 const t1P1Color = m.team1[0].gender === 'M' ? 'text-blue-600' : 'text-pink-600';
                 const t1P2Color = m.team1[1].gender === 'M' ? 'text-blue-600' : 'text-pink-600';
                 const t2P1Color = m.team2[0].gender === 'M' ? 'text-blue-600' : 'text-pink-600';
@@ -580,38 +626,26 @@
                     <div class="bg-gray-50 p-2 flex justify-between items-center border-b">
                         <span class="font-bold text-gray-700">第 ${index + 1} コート</span>
                         <div class="flex gap-2">
-                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition-colors" onclick="recordWin(this, '${m.team1[0].id}','${m.team1[1].id}')">左WIN</button>
-                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded transition-colors" onclick="recordWin(this, '${m.team2[0].id}','${m.team2[1].id}')">右WIN</button>
+                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded" onclick="recordWin(this, '${m.team1[0].id}','${m.team1[1].id}')">左WIN</button>
+                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded" onclick="recordWin(this, '${m.team2[0].id}','${m.team2[1].id}')">右WIN</button>
                         </div>
                     </div>
                     <div class="p-4 flex justify-between items-center text-center">
-                        <div class="flex-1">
-                            <div class="font-bold ${t1P1Color}">${m.team1[0].name}</div>
-                            <div class="font-bold ${t1P2Color}">${m.team1[1].name}</div>
-                        </div>
+                        <div class="flex-1"><div class="font-bold ${t1P1Color}">${m.team1[0].name}</div><div class="font-bold ${t1P2Color}">${m.team1[1].name}</div></div>
                         <div class="px-2 text-red-500 font-bold italic">VS</div>
-                        <div class="flex-1">
-                            <div class="font-bold ${t2P1Color}">${m.team2[0].name}</div>
-                            <div class="font-bold ${t2P2Color}">${m.team2[1].name}</div>
-                        </div>
+                        <div class="flex-1"><div class="font-bold ${t2P1Color}">${m.team2[0].name}</div><div class="font-bold ${t2P2Color}">${m.team2[1].name}</div></div>
                     </div>
                 `;
                 container.appendChild(div);
             });
 
-            // 休憩者の描画
             const restContainer = document.getElementById('restingPlayers');
             restContainer.innerHTML = '';
-            
-            // 誰がどの理由で休んでいるか整理
-            const normalRests = restingPlayers.filter(p => !skip1Players.some(s => s.id === p.id));
-            
             const allRests = [
-                ...normalRests.map(p => ({ ...p, badge: '', badgeClass: '' })),
+                ...restingPlayers.map(p => ({ ...p, badge: '', badgeClass: '' })),
                 ...skip1Players.map(p => ({ ...p, badge: '1回休', badgeClass: 'bg-yellow-400 text-yellow-900' })),
                 ...inactivePlayers.map(p => ({ ...p, badge: '休止', badgeClass: 'bg-gray-500 text-white' }))
             ];
-
             if(allRests.length === 0) {
                 restContainer.innerHTML = '<span class="text-gray-400">お休みなし</span>';
             } else {
@@ -624,176 +658,87 @@
             }
         }
 
-        // UIからグローバルにアクセスできるようにする
         window.recordWin = function(btn, p1Id, p2Id) {
-            // 勝数加算
             const p1 = state.players.find(p => p.id === p1Id);
             const p2 = state.players.find(p => p.id === p2Id);
-            if(p1) p1.winCount++;
-            if(p2) p2.winCount++;
-            saveData();
+            if(p1) p1.winCount++; if(p2) p2.winCount++; saveData();
             
-            // UI変更
             const card = btn.closest('.bg-white');
-            card.classList.remove('border-blue-500');
-            card.classList.add('border-green-500', 'opacity-70');
+            card.classList.remove('border-blue-500'); card.classList.add('border-green-500', 'opacity-70');
             card.querySelector('.bg-gray-50').classList.add('bg-green-50');
-            
-            // ボタンを無効化
-            card.querySelectorAll('.win-btn').forEach(b => {
-                b.disabled = true;
-                b.classList.add('cursor-not-allowed', 'opacity-50');
-            });
-            btn.textContent = '記録済';
-            btn.classList.replace('bg-gray-200', 'bg-green-600');
-            btn.classList.add('text-white');
-            
-            showToast('勝敗を記録しました');
+            card.querySelectorAll('.win-btn').forEach(b => { b.disabled = true; b.classList.add('cursor-not-allowed', 'opacity-50'); });
+            btn.textContent = '記録済'; btn.classList.replace('bg-gray-200', 'bg-green-600'); btn.classList.add('text-white');
         };
 
-        // --- 成績表示 ---
         function renderStats() {
             const list = document.getElementById('statsList');
             list.innerHTML = '';
-            
-            // 勝数順 -> 出場回数少ない順
             const sorted = [...state.players].filter(p => p.status !== 'inactive').sort((a, b) => {
                 if(b.winCount !== a.winCount) return b.winCount - a.winCount;
                 return a.matchCount - b.matchCount;
             });
-
             sorted.forEach(p => {
                 const tr = document.createElement('tr');
+                const conColor = p.consecutiveMatches >= 3 ? 'text-red-500 font-bold' : 'text-gray-600';
+                const restColor = p.continuousRest >= 2 ? 'text-red-500 font-bold' : 'text-gray-600';
                 tr.innerHTML = `
                     <td class="px-2 py-2 whitespace-nowrap text-gray-800 font-medium">${p.name}</td>
                     <td class="px-2 py-2 whitespace-nowrap text-center font-bold text-red-600">${p.winCount}</td>
-                    <td class="px-2 py-2 whitespace-nowrap text-center text-blue-600">${p.matchCount}</td>
+                    <td class="px-2 py-2 whitespace-nowrap text-center text-blue-600 font-bold">${p.matchCount}</td>
+                    <td class="px-2 py-2 whitespace-nowrap text-center ${conColor}">${p.consecutiveMatches}</td>
+                    <td class="px-2 py-2 whitespace-nowrap text-center ${restColor}">${p.continuousRest}</td>
                     <td class="px-2 py-2 whitespace-nowrap text-center text-gray-500">${p.restCount}</td>
-                    <td class="px-2 py-2 whitespace-nowrap text-center text-orange-500">${p.manualRestCount}</td>
                 `;
                 list.appendChild(tr);
             });
         }
 
-        // --- 初期化ボタン ---
         document.getElementById('resetDataBtn').addEventListener('click', () => {
-            showConfirm(
-                'データ初期化',
-                '全ての勝敗データ、出場履歴をリセットしますか？（選手名簿は残ります）',
-                () => {
-                    state.players.forEach(p => {
-                        p.matchCount = 0;
-                        p.restCount = 0;
-                        p.manualRestCount = 0; // 任休もリセット
-                        p.winCount = 0;
-                        p.wasResting = false;
-                        if(p.status === 'skip1') p.status = 'active';
-                    });
-                    state.history = [];
-                    saveData();
-                    document.getElementById('matchResults').innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-info-circle mr-1"></i>条件を設定して試合を生成してください</div>';
-                    document.getElementById('restingPlayers').innerHTML = '<span class="text-gray-400">試合生成後に表示されます</span>';
-                    renderAll();
-                    showToast('データをリセットしました');
-                }
-            );
+            showConfirm('データ初期化', 'データ全部リセットするで？', () => {
+                state.players.forEach(p => {
+                    p.matchCount = 0; p.restCount = 0; p.manualRestCount = 0; p.winCount = 0;
+                    p.consecutiveMatches = 0; p.continuousRest = 0; p.wasResting = false; p.justReturned = false;
+                    if(p.status === 'skip1') p.status = 'active';
+                });
+                state.pairHistory = {}; state.oppHistory = {}; state.lastMatches = []; state.coPlayHistory = {}; saveData();
+                document.getElementById('matchResults').innerHTML = '<div class="text-center text-gray-500 py-8">試合を生成してや</div>';
+                document.getElementById('restingPlayers').innerHTML = '<span class="text-gray-400">試合生成後に表示されるで</span>';
+                renderAll(); showToast('リセット完了や！');
+            });
         });
 
-        // --- データ入出力 ---
         window.exportData = function() {
-            const dataStr = JSON.stringify(state);
-            const activeCount = state.players.filter(p => p.status !== 'inactive').length;
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-            
-            // 人間が読めるヘッダーを付ける
-            const exportText = `【MatcherPro バックアップ】\n取得日時: ${dateStr}\n参加人数: ${activeCount}人\n--------------------\n${dataStr}`;
-
-            // iFrame環境でも安定して動くようにexecCommandを採用
+            const exportText = `【MatcherPro バックアップ】\n${JSON.stringify(state)}`;
             const textArea = document.createElement("textarea");
-            textArea.value = exportText;
-            textArea.style.position = "absolute";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast('データをクリップボードにコピーしたで！');
-            } catch (ex) {
-                showToast('コピーに失敗しました。');
-            }
+            textArea.value = exportText; textArea.style.position = "absolute"; textArea.style.left = "-9999px";
+            document.body.appendChild(textArea); textArea.select();
+            try { document.execCommand('copy'); showToast('コピーしたで！'); } catch (ex) { showToast('失敗や'); }
             document.body.removeChild(textArea);
         };
 
         window.importData = function() {
             const text = document.getElementById('importDataText').value.trim();
-            if(!text) {
-                showToast('データを貼り付けてからボタン押してや！');
-                return;
-            }
-            
+            if(!text) return showToast('データ貼り付けてや！');
             try {
-                // 最初の { から最後の } までを物理的に切り抜く
-                const firstBrace = text.indexOf('{');
-                const lastBrace = text.lastIndexOf('}');
-
-                if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
-                    showToast('無効なデータやわ。{ から } までが含まれてへんで！');
-                    return;
-                }
-
-                let jsonString = text.substring(firstBrace, lastBrace + 1);
-                
-                // 【超重要】スマホのお節介機能（スマートパンクチュエーション）対策
-                // 全角のクォーテーションやスペースを、プログラムが読める半角に強制補正する！
-                jsonString = jsonString.replace(/[“”]/g, '"');
-                jsonString = jsonString.replace(/[‘’]/g, "'");
-                jsonString = jsonString.replace(/　/g, ' ');
-
+                const firstBrace = text.indexOf('{'); const lastBrace = text.lastIndexOf('}');
+                if (firstBrace === -1 || lastBrace === -1) return showToast('無効なデータや');
+                let jsonString = text.substring(firstBrace, lastBrace + 1).replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/　/g, ' ');
                 const parsed = JSON.parse(jsonString);
-                
                 if(parsed && parsed.players) {
-                    showConfirm(
-                        'データ復元',
-                        '現在のデータは完全に上書きされるけど、ええか？',
-                        () => {
-                            state = parsed;
-                            
-                            // 古いバックアップデータを最新の仕様に自動アップデート
-                            state.players.forEach(p => {
-                                p.matchCount = p.matchCount || 0;
-                                p.restCount = p.restCount || 0;
-                                p.manualRestCount = p.manualRestCount || 0; 
-                                p.winCount = p.winCount || 0;
-                                p.status = p.status || 'active'; 
-                                p.wasResting = p.wasResting || false; 
-                            });
-                            
-                            saveData();
-                            renderAll();
-                            document.getElementById('importDataText').value = '';
-                            showToast('データを無事に復元したで！');
-                        },
-                        "上書きする",
-                        "bg-yellow-600"
-                    );
-                } else {
-                    showToast('データの中に選手(players)の情報が見当たらんわ。');
+                    showConfirm('データ復元', '上書きするで？', () => {
+                        state = parsed;
+                        state.pairHistory = state.pairHistory || {}; state.oppHistory = state.oppHistory || {}; state.lastMatches = state.lastMatches || []; state.coPlayHistory = state.coPlayHistory || {};
+                        state.players.forEach(p => {
+                            p.matchCount = p.matchCount || 0; p.restCount = p.restCount || 0; p.manualRestCount = p.manualRestCount || 0; 
+                            p.winCount = p.winCount || 0; p.consecutiveMatches = p.consecutiveMatches || 0; p.continuousRest = p.continuousRest || 0;
+                            p.status = p.status || 'active'; p.wasResting = p.wasResting || false; p.justReturned = p.justReturned || false;
+                        });
+                        saveData(); renderAll(); document.getElementById('importDataText').value = ''; showToast('復元したで！');
+                    }, "上書きする", "bg-yellow-600");
                 }
-            } catch(e) {
-                console.error("Parse Error:", e);
-                // エラーの原因をトーストで具体的に表示してあげる
-                showToast(`読み込み失敗や！原因: ${e.message}`);
-                // さらに詳細な原因をalertで出す（PCなどの環境用）
-                if (window.confirm && typeof window.confirm === 'function') {
-                    try {
-                        alert(`【データ破損の可能性】\nコピーしたデータに記号の抜け漏れ（カンマや } など）があるかもしれんわ。\n\n詳細エラー:\n${e.message}`);
-                    } catch(err) {} // iframe内alertブロック回避
-                }
-            }
+            } catch(e) { showToast('読み込みエラーや'); }
         };
 
-        // 起動時
         loadData();
     </script>
 </body>
