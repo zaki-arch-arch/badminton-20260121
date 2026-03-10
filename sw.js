@@ -1,5 +1,5 @@
-// ★ ここを 'v2', 'v3' と変えることでアプリがアップデートされるんや！
-const CACHE_NAME = 'badminton-cache-v2';
+// ★ ここを 'v3', 'v4' と変えることでアプリがアップデートされるんや！
+const CACHE_NAME = 'badminton-cache-v3'; // ついでにv3にしといたで！
 
 // キャッシュしたいファイルのリスト（君の環境に合わせてるで）
 const urlsToCache = [
@@ -34,6 +34,9 @@ self.addEventListener('activate', function(event) {
           }
         })
       );
+    }).then(function() {
+      // ★ワイからの追加分：更新後、すぐに新しいService Workerに画面のコントロールを握らせるプロの技や！
+      return self.clients.claim();
     })
   );
 });
@@ -47,4 +50,12 @@ self.addEventListener('fetch', function(event) {
         return response || fetch(event.request);
       })
   );
+});
+
+// ★ワイからの追加分：画面からの「すぐ更新せえ！」という合図を受け取る耳や！
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('強制アップデートの指令を受け取ったで！');
+    self.skipWaiting();
+  }
 });
