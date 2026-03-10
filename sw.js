@@ -1,5 +1,5 @@
 // ★ ここを 'v3', 'v4' と変えることでアプリがアップデートされるんや！
-const CACHE_NAME = 'badminton-cache-v3'; // ついでにv3にしといたで！
+const CACHE_NAME = 'badminton-cache-v4'; // ついでにv4にしといたで！
 
 // キャッシュしたいファイルのリスト（君の環境に合わせてるで）
 const urlsToCache = [
