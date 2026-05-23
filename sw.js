@@ -1,5 +1,5 @@
 // ★ ここを 'v3', 'v4' と変えることでアプリがアップデートされるんや！
-const CACHE_NAME = 'badminton-cache-v8'; // VS文字色を黒に変更
+const CACHE_NAME = 'badminton-cache-v9'; // index.htmlをネットワーク優先に変更
 
 // キャッシュしたいファイルのリスト（君の環境に合わせてるで）
 const urlsToCache = [
@@ -41,12 +41,32 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-// 【ネットワークリクエスト処理】横取りしてキャッシュを返す
+// 【ネットワークリクエスト処理】
 self.addEventListener('fetch', function(event) {
+  const url = event.request.url;
+
+  // index.htmlはネットワーク優先（常に最新UIを取得。オフライン時はキャッシュで代替）
+  if (url.endsWith('/') || url.includes('index.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(function(response) {
+          // 取得できたらキャッシュにも保存しておく
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+          return response;
+        })
+        .catch(function() {
+          // オフラインの場合はキャッシュを返す
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // 画像・アイコン等はキャッシュ優先（変更頻度が低いため）
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // キャッシュがあったらそれを返す、無ければネットワークへ取りに行く
         return response || fetch(event.request);
       })
   );
