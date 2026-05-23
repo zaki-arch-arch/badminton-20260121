@@ -1,5 +1,5 @@
 // ★ ここを 'v3', 'v4' と変えることでアプリがアップデートされるんや！
-const CACHE_NAME = 'badminton-cache-v6'; // UIレイアウト更新（全幅表示）
+const CACHE_NAME = 'badminton-cache-v7'; // UIレイアウト更新（文字サイズ拡大）
 
 // キャッシュしたいファイルのリスト（君の環境に合わせてるで）
 const urlsToCache = [

@@ -659,17 +659,17 @@
                 const t2P2Color = m.team2[1].gender === 'M' ? 'text-blue-600' : 'text-pink-600';
 
                 div.innerHTML = `
-                    <div class="bg-gray-50 p-2 flex justify-between items-center border-b">
-                        <span class="font-bold text-gray-700">第 ${index + 1} コート</span>
+                    <div class="bg-gray-50 p-3 flex justify-between items-center border-b">
+                        <span class="font-bold text-gray-700 text-xl">第 ${index + 1} コート</span>
                         <div class="flex gap-2">
-                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded" onclick="recordWin(this, '${m.team1[0].id}','${m.team1[1].id}')">左WIN</button>
-                            <button class="win-btn text-xs bg-gray-200 hover:bg-green-500 hover:text-white px-3 py-1 rounded" onclick="recordWin(this, '${m.team2[0].id}','${m.team2[1].id}')">右WIN</button>
+                            <button class="win-btn text-sm bg-gray-200 hover:bg-green-500 hover:text-white px-4 py-2 rounded font-bold" onclick="recordWin(this, '${m.team1[0].id}','${m.team1[1].id}')">左WIN</button>
+                            <button class="win-btn text-sm bg-gray-200 hover:bg-green-500 hover:text-white px-4 py-2 rounded font-bold" onclick="recordWin(this, '${m.team2[0].id}','${m.team2[1].id}')">右WIN</button>
                         </div>
                     </div>
-                    <div class="p-4 flex justify-between items-center text-center">
-                        <div class="flex-1"><div class="font-bold ${t1P1Color}">${m.team1[0].name}</div><div class="font-bold ${t1P2Color}">${m.team1[1].name}</div></div>
-                        <div class="px-2 text-red-500 font-bold italic">VS</div>
-                        <div class="flex-1"><div class="font-bold ${t2P1Color}">${m.team2[0].name}</div><div class="font-bold ${t2P2Color}">${m.team2[1].name}</div></div>
+                    <div class="p-6 flex justify-between items-center text-center">
+                        <div class="flex-1"><div class="font-bold text-3xl ${t1P1Color}">${m.team1[0].name}</div><div class="font-bold text-3xl ${t1P2Color} mt-2">${m.team1[1].name}</div></div>
+                        <div class="px-4 text-red-500 font-bold italic text-3xl">VS</div>
+                        <div class="flex-1"><div class="font-bold text-3xl ${t2P1Color}">${m.team2[0].name}</div><div class="font-bold text-3xl ${t2P2Color} mt-2">${m.team2[1].name}</div></div>
                     </div>
                 `;
                 container.appendChild(div);
